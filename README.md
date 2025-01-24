@@ -89,6 +89,7 @@ The following environment variables are configured in the `docker-compose.yml` f
 #### 2. **GET /events**
 
 - **Description**: Retrieves all events.
+- **Query Params[Optional]**: start_time, end_time, event_type, device_type
 - **Response**:
   ```json
   [
@@ -113,6 +114,7 @@ The following environment variables are configured in the `docker-compose.yml` f
 #### 1. **GET /alerts**
 
 - **Description**: Retrieves all active alerts.
+- **Query Params[Optional]**: start_time, end_time, event_type, device_type, device_id, location, zone, user_id
 - **Response**:
   ```json
   [
