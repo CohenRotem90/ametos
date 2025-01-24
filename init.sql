@@ -1,0 +1,3 @@
+CREATE TABLE users_authorization (user_id VARCHAR(50) PRIMARY KEY,is_authorized BOOLEAN NOT NULL DEFAULT FALSE);
+CREATE TABLE alerts (id SERIAL PRIMARY KEY,device_id VARCHAR(18) NOT NULL,device_type VARCHAR(18) NOT NULL,timestamp TIMESTAMPTZ NOT NULL,event_type VARCHAR(16) NOT NULL,speed_kmh INT,location VARCHAR(255),zone VARCHAR(255),confidence REAL,photo_base64 BYTEA,user_id VARCHAR(18));
+CREATE TABLE events (id SERIAL PRIMARY KEY,device_id VARCHAR(18) NOT NULL,device_type VARCHAR(18) NOT NULL,timestamp TIMESTAMPTZ NOT NULL,event_type VARCHAR(16) NOT NULL,speed_kmh INT,location VARCHAR(255),zone VARCHAR(255),confidence REAL,photo_base64 BYTEA,user_id VARCHAR(18));

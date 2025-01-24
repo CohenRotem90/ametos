@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  ingestion_service:
+    build:
+      context: ./IngestionService
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq_initializer
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/ametos" # Updated URL
+      
+      RABBITMQ_URL: "amqp://guest:guest@rabbitmq:5672/"
+      
+      REDIS_HOST: redis # Use service name of Redis container
+      REDIS_PORT: 6379
+      DB_NAME: ametos
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres # Use service name of PostgreSQL container
+      DB_PORT: 5432
+      RABIT_QUEUE: events
+      RABIT_HOST: rabbitmq # Use service name of RabbitMQ container
+    networks:
+      - mynetwork
+      
+
+  alerting_service:
+    build:
+      context: ./Alerting_Service
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    depends_on:
+      - postgres
+      - redis
+      - rabbitmq_initializer
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      DB_NAME: ametos
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres
+      DB_PORT: 5432
+      RABIT_QUEUE: events
+      RABIT_HOST: rabbitmq
+    networks:
+      - mynetwork
+
+  rabbitmq:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mynetwork
+
+  rabbitmq_initializer:
+    build:
+      context: .
+      dockerfile: Dockerfile.rabbitmq_initializer
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - mynetwork
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ametos
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - mynetwork
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - mynetwork
+
+volumes:
+  postgres_data:
+    driver: local
+networks:
+  mynetwork:
+    driver: bridge
