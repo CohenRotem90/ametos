@@ -12,8 +12,8 @@
 1. Clone the repository:
 
    ```bash
-   git clone <repository_url>
-   cd <repository_directory>
+   git clone https://github.com/CohenRotem90/ametos.git
+   cd ametos
    ```
 
 2. Start the services using Docker Compose:
